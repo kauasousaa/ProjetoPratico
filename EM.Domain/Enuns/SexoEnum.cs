@@ -1,4 +1,4 @@
-namespace EM.Domain.Enuns;
+    namespace EM.Domain.Enuns;
 
 public enum SexoEnum
 {
@@ -6,5 +6,8 @@ public enum SexoEnum
     Feminino = 2,
     Outro = 99
 }
+
+
+
 
 

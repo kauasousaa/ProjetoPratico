@@ -1,11 +1,13 @@
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
 using EM.Domain;
 using EM.Repository;
 using EM.Repository.Utilitarios;
 using EM.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
 
 namespace EM.Web.Controllers;
 
@@ -35,23 +37,71 @@ public class HomeController : Controller
 
     public IActionResult Relatorio()
     {
-        var alunos = _repositorioAluno.Listar();
-        var csv = new StringBuilder();
-        csv.AppendLine("Matricula,Nome,Sexo,Cidade,UF,Nascimento,CPF");
+        var alunos = _repositorioAluno.Listar().ToList();
 
-        foreach (var aluno in alunos)
+        var document = Document.Create(container =>
         {
-            var cidade = aluno.Residencia ?? new Cidade();
-            csv.AppendLine(
-                $"{aluno.Matricula},{EscaparCsv(aluno.NomeCompleto)},{aluno.Genero},{EscaparCsv(cidade.Nome)},{cidade.Estado},{aluno.DataNascimento:dd/MM/yyyy},{(aluno.CPF ?? string.Empty)}");
-        }
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(24);
+                page.DefaultTextStyle(x => x.FontSize(10));
 
-        var bytes = Encoding.UTF8.GetBytes(csv.ToString());
-        return File(bytes, "text/csv", "alunos-relatorio.csv");
+                page.Header()
+                    .Text("Relatório de alunos")
+                    .FontSize(18)
+                    .SemiBold()
+                    .AlignCenter();
+
+                page.Content().PaddingTop(12).Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(0.8f);
+                        columns.RelativeColumn(2f);
+                        columns.RelativeColumn(1f);
+                        columns.RelativeColumn(1.5f);
+                        columns.RelativeColumn(0.7f);
+                        columns.RelativeColumn(0.9f);
+                        columns.RelativeColumn(1.3f);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Matrícula").SemiBold();
+                        header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Nome").SemiBold();
+                        header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Sexo").SemiBold();
+                        header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Cidade").SemiBold();
+                        header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("UF").SemiBold();
+                        header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Nascimento").SemiBold();
+                        header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("CPF").SemiBold();
+                    });
+
+                    foreach (var aluno in alunos)
+                    {
+                        var cidade = aluno.Residencia ?? new Cidade();
+
+                        table.Cell().Padding(3).Text(aluno.Matricula.ToString());
+                        table.Cell().Padding(3).Text(aluno.NomeCompleto);
+                        table.Cell().Padding(3).Text(aluno.Genero.ToString());
+                        table.Cell().Padding(3).Text(cidade.Nome);
+                        table.Cell().Padding(3).Text(cidade.Estado);
+                        table.Cell().Padding(3).Text(aluno.DataNascimento.ToString("dd/MM/yyyy"));
+                        table.Cell().Padding(3).Text(aluno.CPF ?? string.Empty);
+                    }
+                });
+
+                page.Footer()
+                    .AlignCenter()
+                    .Text($"Gerado em {DateTime.Now:dd/MM/yyyy HH:mm}");
+            });
+        });
+
+        var stream = new MemoryStream();
+        document.GeneratePdf(stream);
+        stream.Position = 0;
+        return File(stream, "application/pdf", "alunos-relatorio.pdf");
     }
-
-    private static string EscaparCsv(string valor)
-        => $"\"{(valor ?? string.Empty).Replace("\"", "\"\"")}\"";
 
     public IActionResult Privacy()
     {

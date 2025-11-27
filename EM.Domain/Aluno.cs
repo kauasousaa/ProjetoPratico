@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using EM.Domain.Enuns;
 using EM.Domain.Interface;
+using EM.Domain.Validadores;
 
 namespace EM.Domain;
 
@@ -17,6 +18,7 @@ public class Aluno : IEntidade
     public string NomeCompleto { get; set; } = string.Empty;
 
     [RegularExpression(@"^$|^\d{3}\.\d{3}\.\d{3}-\d{2}$", ErrorMessage = "CPF inválido")]
+    [CpfValido]
     public string? CPF { get; set; }
 
     [Required]

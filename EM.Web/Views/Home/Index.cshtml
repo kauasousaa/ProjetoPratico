@@ -1,143 +1,55 @@
 ﻿@model IEnumerable<Aluno>
 @{
-    ViewData["Title"] = "Painel de alunos";
+    ViewData["Title"] = "Tabela de Alunos";
     var tipoBuscaAtual = (ViewBag.TipoBusca as string) ?? "matricula";
     var termoBusca = ViewBag.TermoBusca as string ?? string.Empty;
-    var hoje = DateTime.Now;
 }
 
-<section class="bg-primary text-white rounded-4 p-4 mb-4 shadow section-panel">
-    <div>
-        <p class="text-uppercase small mb-1">Painel escolar</p>
-        <h1 class="mb-1">Portal de alunos</h1>
-        <p class="mb-1">
-            Painel de acompanhamento diário com indicadores rápidos das matrículas e ações imediatas.
-        </p>
-        <small class="text-white-50">Atualizado em @hoje.ToString("dd 'de' MMMM 'de' yyyy")</small>
-    </div>
-    <div class="section-actions d-flex flex-wrap gap-2">
-        <a class="btn btn-outline-light btn-sm" asp-controller="AdministracaoCidade" asp-action="Index">Gerenciar cidades</a>
-        <a class="btn btn-light btn-sm text-primary fw-semibold" asp-controller="AdministracaoAluno" asp-action="Cadastro">Registrar aluno</a>
-        <a class="btn btn-outline-light btn-sm" asp-action="Relatorio">Emitir relatório</a>
-    </div>
-</section>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 fw-bold">Tabela de Alunos</h1>
+    <a class="btn btn-blue" asp-controller="Home" asp-action="Relatorio">Emitir relatório</a>
+</div>
 
-<section class="section-panel">
-    <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
-        <div class="col">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <p class="text-uppercase small text-muted mb-1">Alunos cadastrados</p>
-                    <h2 class="fw-bold" id="totalAlunos">0</h2>
-                    <span class="badge bg-light text-primary">Ativos</span>
+<section class="section-panel filter-panel mb-4">
+    <div class="card-body filter-panel__body">
+        <form method="get" class="row g-3">
+            <div class="col-md-12 mb-2">
+                <label class="form-label mb-2 fw-semibold">Opção de busca:</label>
+                <div class="d-flex gap-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoBusca" id="radioMatricula" value="matricula" @(tipoBuscaAtual == "matricula" ? "checked" : "")>
+                        <label class="form-check-label" for="radioMatricula">Matrícula</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoBusca" id="radioNome" value="nome" @(tipoBuscaAtual == "nome" ? "checked" : "")>
+                        <label class="form-check-label" for="radioNome">Nome</label>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <p class="text-uppercase small text-muted mb-1">Feminino</p>
-                    <h2 class="fw-bold" id="alunosFemininos">0</h2>
-                    <span class="badge bg-light text-primary">Presença destacada</span>
-                </div>
+            <div class="col-md-9">
+                <label class="form-label mb-1 fw-semibold" for="busca">Buscar</label>
+                <input type="text" class="form-control" id="busca" name="busca" value="@termoBusca" placeholder="Matrícula ou nome do aluno..." />
             </div>
-        </div>
-        <div class="col">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <p class="text-uppercase small text-muted mb-1">Masculino</p>
-                    <h2 class="fw-bold" id="alunosMasculinos">0</h2>
-                    <span class="badge bg-light text-primary">Equilíbrio</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section-panel card mb-4 shadow-sm">
-    <div class="card-body">
-        <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
-            <p class="mb-0 fw-semibold text-uppercase text-muted">
-                Filtro ativo: @tipoBuscaAtual.ToUpperInvariant()
-            </p>
-            <div>
-                <span class="badge bg-light text-primary me-1">Tabela dinâmica</span>
-                <span class="badge bg-light text-primary">Busca instantânea</span>
-            </div>
-        </div>
-
-        <form method="get" class="row g-3 align-items-end">
-            <div class="col-md-5">
-                <label class="form-label mb-1" for="busca">Buscar</label>
-                <input type="text" class="form-control" id="busca" name="busca" value="@termoBusca" placeholder="Matrícula, nome, CPF ou estado" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label mb-1" for="filtro">Filtro rápido</label>
-                <select class="form-select" id="filtro" name="tipoBusca">
-                    <option value="matricula" selected="@("matricula" == tipoBuscaAtual)">Matrícula</option>
-                    <option value="nome" selected="@("nome" == tipoBuscaAtual)">Nome</option>
-                </select>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <div class="section-actions justify-content-end">
-                    <button type="submit" class="btn btn-accent">Aplicar</button>
-                    <button id="limparFiltros" type="button" class="btn btn-outline-accent">Limpar</button>
-                </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-accent w-100">Buscar</button>
             </div>
         </form>
     </div>
 </section>
 
-<section class="section-panel card mb-3 shadow-sm">
-    <div class="card-body">
-        <div class="d-flex justify-content-between mb-2">
-            <div>
-                <strong>Participação feminina</strong>
-                <p class="text-muted mb-0 small">Meta de 50% para paridade</p>
-            </div>
-            <span id="percFeminino">0%</span>
-        </div>
-        <div class="progress" style="height: 0.75rem;">
-            <div id="barraFeminino" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-    </div>
-</section>
-
-<section class="section-panel card mb-4 shadow-sm">
-    <div class="card-body">
-        <div class="d-flex justify-content-between mb-2">
-            <div>
-                <strong>Participação masculina</strong>
-                <p class="text-muted mb-0 small">Controle para turmas equilibradas</p>
-            </div>
-            <span id="percMasculino">0%</span>
-        </div>
-        <div class="progress" style="height: 0.75rem;">
-            <div id="barraMasculino" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-    </div>
-</section>
-
-<section class="section-panel card shadow-sm">
-    <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                <h2 class="h5 mb-0">Tabela de alunos</h2>
-                <div class="d-flex gap-2">
-                    <a class="btn btn-outline-accent btn-sm" asp-controller="AdministracaoCidade" asp-action="Index">Ver cidades</a>
-                    <a class="btn btn-outline-accent btn-sm" asp-action="Relatorio">Emitir relatório</a>
-                </div>
-        </div>
+<div class="table-container-wrapper">
+<section class="section-panel table-panel mb-0">
+    <div class="card-body table-panel__content">
         <div class="table-responsive">
             <table class="table table-striped table-hover align-middle mb-0">
                 <thead>
                     <tr>
                         <th>Matrícula</th>
-                        <th>Nome completo</th>
+                        <th>Nome</th>
                         <th>Sexo</th>
-                        <th>Cidade (UF)</th>
-                        <th>Nascimento</th>
+                        <th>Data de nascimento</th>
                         <th>CPF</th>
-                        <th class="text-end">Ações</th>
+                        <th class="text-end">Opções</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -147,18 +59,14 @@
                             <td>@aluno.Matricula</td>
                             <td>@aluno.NomeCompleto</td>
                             <td>@aluno.Genero</td>
-                            <td>
-                                <strong>@(aluno.Residencia?.Nome ?? "-")</strong><br />
-                                <small class="text-muted">@((aluno.Residencia?.Estado) ?? "-")</small>
-                            </td>
                             <td>@aluno.DataNascimento.ToString("dd/MM/yyyy")</td>
                             <td>@(string.IsNullOrWhiteSpace(aluno.CPF) ? "-" : aluno.CPF)</td>
                             <td class="text-end">
-                                <a class="btn btn-outline-accent btn-sm me-2" asp-controller="AdministracaoAluno" asp-action="Cadastro" asp-route-id="@aluno.Id">Editar</a>
+                                <a class="btn-edit-small me-3" asp-controller="AdministracaoAluno" asp-action="Cadastro" asp-route-id="@aluno.Id">Editar</a>
                                 <form method="post" asp-controller="AdministracaoAluno" asp-action="Excluir" class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@aluno.Id" />
-                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Confirma a exclusão deste aluno?');">Excluir</button>
+                                    <button type="submit" class="btn-link-delete" onclick="return confirm('Confirma a exclusão deste aluno?');">Excluir</button>
                                 </form>
                             </td>
                         </tr>
@@ -168,3 +76,4 @@
         </div>
     </div>
 </section>
+</div>

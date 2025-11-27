@@ -1,8 +1,10 @@
-﻿@model Aluno
+Set-Location 'C:\Users\yuto_\source\repos\ProjetoPratico'
+$content = @'
+@model Aluno
 @using EM.Domain.Enuns
 @{
     var isEdicao = (ViewBag.IsEdicao as bool?) ?? false;
-    ViewData["Title"] = isEdicao ? "EdiÃ§Ã£o de aluno" : "Cadastrar aluno";
+    ViewData["Title"] = isEdicao ? "Edição de aluno" : "Cadastrar aluno";
     var tituloPrincipal = isEdicao ? "Editar aluno" : "Cadastrar Aluno";
 }
 
@@ -31,8 +33,8 @@
                     </div>
 
                     <div class="col-12">
-                        <label asp-for="CPF" class="form-label small text-uppercase">CPF</label>
-                        <input asp-for="CPF" id="cpfInput" type="tel" class="form-control form-control-lg" placeholder="000.000.000-00" maxlength="14" />
+                        <label asp-for="CPF" class="form-label small text-uppercase">CPF (opcional)</label>
+                        <input asp-for="CPF" class="form-control form-control-lg" placeholder="000.000.000-00" />
                         <span asp-validation-for="CPF" class="text-danger small"></span>
                     </div>
 
@@ -74,59 +76,8 @@
         </div>
     </div>
 </div>
+'@
+Set-Content -Path 'EM.Web/Views/AdministracaoAluno/Cadastro.cshtml' -Value $content -Encoding utf8
 
-@section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const cpfInput = document.getElementById("cpfInput");
-            
-            if (cpfInput) {
-                // Bloqueia a digitação de caracteres que não são números
-                cpfInput.addEventListener("keypress", function(e) {
-                    const char = String.fromCharCode(e.which || e.keyCode);
-                    // Permite apenas números (0-9) e teclas de controle (backspace, delete, tab, etc)
-                    if (!/[0-9]/.test(char) && !e.ctrlKey && !e.metaKey && e.keyCode !== 8 && e.keyCode !== 9 && e.keyCode !== 46 && e.keyCode !== 37 && e.keyCode !== 39) {
-                        e.preventDefault();
-                        return false;
-                    }
-                });
-                
-                cpfInput.addEventListener("input", function(e) {
-                    // Remove tudo que não é número
-                    let value = e.target.value.replace(/\D/g, "");
-                    
-                    // Limita a 11 dígitos
-                    if (value.length > 11) {
-                        value = value.substring(0, 11);
-                    }
-                    
-                    // Aplica a máscara: 000.000.000-00
-                    if (value.length > 0) {
-                        if (value.length <= 3) {
-                            value = value;
-                        } else if (value.length <= 6) {
-                            value = value.substring(0, 3) + "." + value.substring(3);
-                        } else if (value.length <= 9) {
-                            value = value.substring(0, 3) + "." + value.substring(3, 6) + "." + value.substring(6);
-                        } else {
-                            value = value.substring(0, 3) + "." + value.substring(3, 6) + "." + value.substring(6, 9) + "-" + value.substring(9, 11);
-                        }
-                    }
-                    
-                    e.target.value = value;
-                });
-                
-                // Permite apenas números ao colar
-                cpfInput.addEventListener("paste", function(e) {
-                    e.preventDefault();
-                    const paste = (e.clipboardData || window.clipboardData).getData("text");
-                    const numbers = paste.replace(/\D/g, "");
-                    if (numbers.length <= 11) {
-                        cpfInput.value = numbers;
-                        cpfInput.dispatchEvent(new Event("input"));
-                    }
-                });
-            }
-        });
-    </script>
-}
+
+

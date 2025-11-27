@@ -17,3 +17,6 @@ public abstract class RepositorioBase<T> where T : IEntidade
 }
 
 
+
+
+
