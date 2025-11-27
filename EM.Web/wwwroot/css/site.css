@@ -1,0 +1,82 @@
+body {
+  margin: 0;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  background: #eef2f7;
+}
+
+.card {
+  border-radius: 1rem;
+  border: none;
+}
+
+.table thead th {
+  background: #f3f6fb;
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: rgba(13, 110, 253, 0.08);
+}
+
+.table-responsive {
+  max-height: 430px;
+}
+
+.btn-accent {
+  background: var(--accent-400);
+  border-color: transparent;
+  color: #0b0a0a;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(240, 165, 0, 0.35);
+}
+
+.btn-outline-accent {
+  border-color: rgba(13, 110, 253, 0.35);
+  color: var(--primary-800, #0b4da3);
+  font-weight: 500;
+}
+
+.progress {
+  height: 0.75rem;
+  background: rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+}
+
+.progress-bar {
+  transition: width 0.4s ease;
+}
+
+.hidden-row {
+  display: none !important;
+}
+
+.row-highlight {
+  animation: pulse-highlight 1.2s ease-in-out;
+}
+
+@keyframes pulse-highlight {
+  0% {
+    background: rgba(255, 235, 59, 0.3);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.section-actions .btn {
+  margin: 0;
+}
+
+.section-panel {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  margin-bottom: 1rem;
+}

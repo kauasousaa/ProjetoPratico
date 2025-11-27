@@ -1,0 +1,22 @@
+:root {
+  --primary-500: #0d6efd;
+  --primary-800: #0b4da3;
+  --accent-400: #f0a500;
+  --surface: #ffffff;
+  --soft-surface: #eef2fb;
+}
+
+.bg-soft {
+  background: var(--soft-surface);
+}
+
+.brand-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: var(--accent-400);
+}
+
+

@@ -1,0 +1,39 @@
+@model IEnumerable<Cidade>
+@{
+    ViewData["Title"] = "Gerenciar cidades";
+}
+
+<div class="panel-header">
+    <h1>Cidades registradas</h1>
+    <p class="text-muted">Ajuste referências regionais para os estudantes quando precisar.</p>
+</div>
+
+<div class="mb-3 text-end">
+    <a asp-action="CadastroCidade" class="btn btn-accent">Adicionar cidade</a>
+</div>
+
+<div class="table-responsive rounded-table">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Estado</th>
+                <th class="text-end">Editar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cidade in Model)
+            {
+                <tr>
+                    <td>@cidade.Nome</td>
+                    <td>@cidade.Estado</td>
+                    <td class="text-end">
+                        <a class="btn btn-outline-accent btn-sm" asp-action="CadastroCidade" asp-route-id="@cidade.Id">Editar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

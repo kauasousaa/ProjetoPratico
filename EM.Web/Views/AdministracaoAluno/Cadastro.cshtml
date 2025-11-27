@@ -1,0 +1,74 @@
+@model Aluno
+@using EM.Domain.Enuns
+@{
+    var isEdicao = (ViewBag.IsEdicao as bool?) ?? false;
+    ViewData["Title"] = isEdicao ? "Edição de aluno" : "Adicionar aluno";
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="mb-3">
+            <h1 class="h4 mb-1">@ViewData["Title"]</h1>
+            <p class="text-muted mb-0">Valide as informações antes de salvar o cadastro do aluno.</p>
+        </div>
+
+        <form asp-action="Cadastro" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-2" role="alert"></div>
+
+            <div class="col-md-4">
+                <label asp-for="Matricula" class="form-label">Matrícula</label>
+                <input asp-for="Matricula" class="form-control" placeholder="Informe a matrícula" />
+                <span asp-validation-for="Matricula" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-8">
+                <label asp-for="NomeCompleto" class="form-label">Nome completo</label>
+                <input asp-for="NomeCompleto" class="form-control" placeholder="Digite o nome completo" />
+                <span asp-validation-for="NomeCompleto" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="CPF" class="form-label">CPF (opcional)</label>
+                <input asp-for="CPF" class="form-control" placeholder="000.000.000-00" />
+                <span asp-validation-for="CPF" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="DataNascimento" class="form-label">Data de nascimento</label>
+                <input asp-for="DataNascimento" class="form-control" type="date" />
+                <span asp-validation-for="DataNascimento" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Genero" class="form-label">Sexo</label>
+                <select asp-for="Genero" class="form-select">
+                    <option value="">Selecione</option>
+                    <option value="@SexoEnum.Masculino">Masculino</option>
+                    <option value="@SexoEnum.Feminino">Feminino</option>
+                </select>
+                <span asp-validation-for="Genero" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Cidade</label>
+                <select asp-for="Residencia.Id" asp-items="ViewBag.Cidades" class="form-select">
+                    <option value="0">Selecione</option>
+                </select>
+                <span asp-validation-for="Residencia.Id" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">UF</label>
+                <input class="form-control" value="@Model.Residencia?.Estado" readonly />
+            </div>
+
+            <div class="col-12 d-flex justify-content-between">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-accent">Voltar</a>
+                <button type="submit" class="btn btn-accent">@ViewData["Title"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+

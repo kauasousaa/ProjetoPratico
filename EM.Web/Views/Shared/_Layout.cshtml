@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Portal Escolar</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/palette.css" asp-append-version="true" />
+</head>
+<body class="bg-soft">
+    <header class="mb-4">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+            <div class="container">
+                <a class="navbar-brand text-uppercase fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-dot"></span> School Management
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Alternar navegação">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Painel de alunos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="AdministracaoAluno" asp-action="Cadastro">Registrar aluno</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="AdministracaoCidade" asp-action="Index">Gerenciar cidades</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="shadow-sm rounded-4 bg-white p-4">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="footer mt-4">
+        <div class="container text-center text-secondary py-3">
+            Crafted for school leaders · @DateTime.Now.Year
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
