@@ -13,7 +13,6 @@
 </div>
 
 <div class="row">
-    <!-- Formulário de Cidade -->
     <div class="col-lg-4 mb-4">
         <div class="card shadow-sm">
             <div class="card-body">
@@ -53,7 +52,6 @@
         </div>
     </div>
 
-    <!-- Lista de Cidades -->
     <div class="col-lg-8">
         <div class="card shadow-sm">
             <div class="card-body p-0">
@@ -101,7 +99,6 @@
 
 @section Scripts {
     <script>
-        // Validação do formulário
         document.getElementById('formCidade')?.addEventListener('submit', function(e) {
             const nome = document.querySelector('[name="Nome"]').value.trim();
             const estado = document.querySelector('[name="Estado"]').value.trim();

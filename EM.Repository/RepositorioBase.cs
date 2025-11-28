@@ -17,8 +17,3 @@ public abstract class RepositorioBase<T> where T : IEntidade
         return new FbConnection(ConnectionString);
     }
 }
-
-
-
-
-

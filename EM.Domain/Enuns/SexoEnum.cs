@@ -1,12 +1,7 @@
-    namespace EM.Domain.Enuns;
+namespace EM.Domain.Enuns;
 
 public enum SexoEnum
 {
     Masculino = 1,
     Feminino = 2
 }
-
-
-
-
-

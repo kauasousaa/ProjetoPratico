@@ -14,12 +14,12 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
     public IEnumerable<Aluno> Listar()
     {
         var alunos = new List<Aluno>();
-        
+
         try
         {
             using var conexao = CriarConexao();
             conexao.Open();
-            
+
             var sql = @"SELECT 
                             a.ALUMATRICULA,
                             a.ALUNOME,
@@ -32,10 +32,10 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
                         FROM TBALUNO a
                         LEFT JOIN TBCIDADE c ON a.ALUCODCIDADE = c.CIDCODIGO
                         ORDER BY a.ALUMATRICULA";
-            
+
             using var cmd = new FbCommand(sql, conexao);
             using var reader = cmd.ExecuteReader();
-            
+
             while (reader.Read())
             {
                 alunos.Add(new Aluno
@@ -57,10 +57,9 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro ao listar alunos: {ex.Message}");
             return new List<Aluno>();
         }
-        
+
         return alunos;
     }
 
@@ -75,10 +74,10 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
         {
             using var conexao = CriarConexao();
             conexao.Open();
-            
+
             var sql = @"INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO, ALUCODCIDADE)
                         VALUES (@Matricula, @Nome, @CPF, @DataNascimento, @Sexo, @CodCidade)";
-            
+
             using var cmd = new FbCommand(sql, conexao);
             cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
             cmd.Parameters.Add("@Nome", FbDbType.VarChar, 100).Value = entidade.NomeCompleto;
@@ -86,14 +85,12 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
             cmd.Parameters.Add("@DataNascimento", FbDbType.Date).Value = entidade.DataNascimento;
             cmd.Parameters.Add("@Sexo", FbDbType.Integer).Value = ConverterSexoParaInt(entidade.Genero);
             cmd.Parameters.Add("@CodCidade", FbDbType.Integer).Value = entidade.Residencia?.Id ?? 0;
-            
+
             cmd.ExecuteNonQuery();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"ERRO ao inserir aluno: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            throw; // Relança a exceção para que o controller possa tratá-la
+            throw;
         }
     }
 
@@ -101,7 +98,7 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
     {
         using var conexao = CriarConexao();
         conexao.Open();
-        
+
         var sql = @"UPDATE TBALUNO 
                     SET ALUMATRICULA = @Matricula,
                         ALUNOME = @Nome,
@@ -110,7 +107,7 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
                         ALUSEXO = @Sexo,
                         ALUCODCIDADE = @CodCidade
                     WHERE ALUMATRICULA = @Matricula";
-        
+
         using var cmd = new FbCommand(sql, conexao);
         cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
         cmd.Parameters.Add("@Nome", FbDbType.VarChar, 100).Value = entidade.NomeCompleto;
@@ -118,7 +115,7 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
         cmd.Parameters.Add("@DataNascimento", FbDbType.Date).Value = entidade.DataNascimento;
         cmd.Parameters.Add("@Sexo", FbDbType.Integer).Value = ConverterSexoParaInt(entidade.Genero);
         cmd.Parameters.Add("@CodCidade", FbDbType.Integer).Value = entidade.Residencia.Id;
-        
+
         cmd.ExecuteNonQuery();
     }
 
@@ -126,12 +123,12 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
     {
         using var conexao = CriarConexao();
         conexao.Open();
-        
+
         var sql = "DELETE FROM TBALUNO WHERE ALUMATRICULA = @Matricula";
-        
+
         using var cmd = new FbCommand(sql, conexao);
         cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
-        
+
         cmd.ExecuteNonQuery();
     }
 
@@ -139,9 +136,9 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
     {
         return valor switch
         {
-            0 => SexoEnum.Masculino,  // Banco usa 0 para Masculino
-            1 => SexoEnum.Feminino,   // Banco usa 1 para Feminino
-            _ => SexoEnum.Masculino   // Padrão: Masculino
+            0 => SexoEnum.Masculino,
+            1 => SexoEnum.Feminino,
+            _ => SexoEnum.Masculino
         };
     }
 
@@ -149,10 +146,9 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
     {
         return sexo switch
         {
-            SexoEnum.Masculino => 0,  // Banco espera 0 para Masculino
-            SexoEnum.Feminino => 1,   // Banco espera 1 para Feminino
-            _ => 0                    // Padrão: 0 (Masculino)
+            SexoEnum.Masculino => 0,
+            SexoEnum.Feminino => 1,
+            _ => 0
         };
     }
 }
-
