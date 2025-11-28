@@ -1,42 +1,122 @@
-@model IEnumerable<Cidade>
+@model Cidade
 @{
-    ViewData["Title"] = "Gerenciar cidades";
+    var isEdicao = (ViewBag.IsEdicao as bool?) ?? false;
+    var cidades = ViewBag.Cidades as IEnumerable<Cidade> ?? new List<Cidade>();
+    ViewData["Title"] = "Gerenciar Cidades";
 }
 
-<div class="panel-header">
-    <h1>Cidades registradas</h1>
-    <p class="text-muted">Ajuste referências regionais para os estudantes quando precisar.</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Gerenciar Cidades</h1>
+        <p class="text-muted mb-0">Cadastre e gerencie as cidades disponíveis</p>
+    </div>
 </div>
 
-<div class="mb-3 text-end">
-    <a asp-action="CadastroCidade" class="btn btn-accent">Adicionar cidade</a>
+<div class="row">
+    <!-- Formulário de Cidade -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">@(isEdicao ? "Editar Cidade" : "Nova Cidade")</h5>
+                
+                <form method="post" id="formCidade">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Nome" class="form-label">Nome da Cidade <span class="text-danger">*</span></label>
+                        <input asp-for="Nome" class="form-control" placeholder="Digite o nome da cidade" />
+                        <span asp-validation-for="Nome" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Estado" class="form-label">UF <span class="text-danger">*</span></label>
+                        <input asp-for="Estado" 
+                               class="form-control text-uppercase" 
+                               maxlength="2" 
+                               oninput="this.value = this.value.toUpperCase();" 
+                               placeholder="RJ" />
+                        <span asp-validation-for="Estado" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">@(isEdicao ? "Atualizar" : "Salvar")</button>
+                        @if (isEdicao)
+                        {
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Cidades -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Estado</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (cidades.Any())
+                            {
+                                @foreach (var cidade in cidades)
+                                {
+                                    <tr>
+                                        <td>@cidade.Nome</td>
+                                        <td>@cidade.Estado</td>
+                                        <td class="text-end">
+                                            <a href="@Url.Action("Index", new { id = cidade.Id })" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                Editar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">
+                                        Nenhuma cidade cadastrada
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="table-responsive rounded-table">
-    <table class="table table-hover mb-0">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Estado</th>
-                <th class="text-end">Editar</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var cidade in Model)
-            {
-                <tr>
-                    <td>@cidade.Nome</td>
-                    <td>@cidade.Estado</td>
-                    <td class="text-end">
-                        <a class="btn btn-outline-accent btn-sm" asp-action="CadastroCidade" asp-route-id="@cidade.Id">Editar</a>
-                    </td>
-                </tr>
+@section Scripts {
+    <script>
+        // Validação do formulário
+        document.getElementById('formCidade')?.addEventListener('submit', function(e) {
+            const nome = document.querySelector('[name="Nome"]').value.trim();
+            const estado = document.querySelector('[name="Estado"]').value.trim();
+
+            if (!nome || !estado) {
+                e.preventDefault();
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return false;
             }
-        </tbody>
-    </table>
-</div>
 
-
-
-
-
+            if (estado.length !== 2) {
+                e.preventDefault();
+                alert('O estado deve ter exatamente 2 caracteres.');
+                return false;
+            }
+        });
+    </script>
+}

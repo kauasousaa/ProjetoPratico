@@ -1,131 +1,107 @@
 ﻿@model Aluno
-@using EM.Domain.Enuns
 @{
     var isEdicao = (ViewBag.IsEdicao as bool?) ?? false;
-    ViewData["Title"] = isEdicao ? "EdiÃ§Ã£o de aluno" : "Cadastrar aluno";
-    var tituloPrincipal = isEdicao ? "Editar aluno" : "Cadastrar Aluno";
+    ViewData["Title"] = isEdicao ? "Editar Aluno" : "Novo Aluno";
+    var cidades = ViewBag.Cidades as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
 }
 
-<div class="d-flex justify-content-center align-items-start min-vh-100 py-4">
-    <div class="w-100" style="max-width:540px;">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body px-4 py-5">
-                <h1 class="display-6 fw-light text-center mb-2">@tituloPrincipal</h1>
-                <p class="text-muted text-center mb-4">Preencha os dados abaixo para salvar o cadastro do aluno.</p>
-
-                <form asp-action="Cadastro" method="post" class="row g-3">
-                    @Html.AntiForgeryToken()
-                    <input asp-for="Id" type="hidden" />
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-2" role="alert"></div>
-
-                    <div class="col-12">
-                        <label asp-for="Matricula" class="form-label small text-uppercase">Matrícula</label>
-                        <input asp-for="Matricula" class="form-control form-control-lg" placeholder="Informe a matrícula" />
-                        <span asp-validation-for="Matricula" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label asp-for="NomeCompleto" class="form-label small text-uppercase">Nome completo</label>
-                        <input asp-for="NomeCompleto" class="form-control form-control-lg" placeholder="Digite o nome completo" />
-                        <span asp-validation-for="NomeCompleto" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label asp-for="CPF" class="form-label small text-uppercase">CPF</label>
-                        <input asp-for="CPF" id="cpfInput" type="tel" class="form-control form-control-lg" placeholder="000.000.000-00" maxlength="14" />
-                        <span asp-validation-for="CPF" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label asp-for="DataNascimento" class="form-label small text-uppercase">Nascimento</label>
-                        <input asp-for="DataNascimento" class="form-control form-control-lg" type="date" />
-                        <span asp-validation-for="DataNascimento" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label asp-for="Genero" class="form-label small text-uppercase">Sexo</label>
-                        <select asp-for="Genero" class="form-select form-select-lg">
-                            <option value="">Selecione</option>
-                            <option value="@SexoEnum.Masculino">Masculino</option>
-                            <option value="@SexoEnum.Feminino">Feminino</option>
-                        </select>
-                        <span asp-validation-for="Genero" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label small text-uppercase">Cidade</label>
-                        <select asp-for="Residencia.Id" asp-items="ViewBag.Cidades" class="form-select form-select-lg">
-                            <option value="0">Selecione</option>
-                        </select>
-                        <span asp-validation-for="Residencia.Id" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label small text-uppercase">UF</label>
-                        <input class="form-control form-control-lg" value="@Model.Residencia?.Estado" readonly />
-                    </div>
-
-                    <div class="col-12 d-flex justify-content-between mt-4">
-                        <a asp-controller="Home" asp-action="Index" class="btn text-white px-4" style="background:#5a5a5a;">Voltar</a>
-                        <button type="submit" class="btn text-white px-4" style="background:#00b1d6;">Salvar</button>
-                    </div>
-                </form>
-            </div>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="mb-4">
+            <h1 class="h4 mb-1">@ViewData["Title"]</h1>
+            <p class="text-muted mb-0">Preencha os dados do aluno abaixo</p>
         </div>
+
+        <form method="post" class="row g-3" id="formAluno">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="col-md-6">
+                <label asp-for="Matricula" class="form-label">Matrícula <span class="text-danger">*</span></label>
+                <input asp-for="Matricula" class="form-control" placeholder="Digite a matrícula" />
+                <span asp-validation-for="Matricula" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="NomeCompleto" class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                <input asp-for="NomeCompleto" class="form-control" placeholder="Digite o nome completo" />
+                <span asp-validation-for="NomeCompleto" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="CPF" class="form-label">CPF</label>
+                <input asp-for="CPF" 
+                       class="form-control" 
+                       id="cpf" 
+                       placeholder="000.000.000-00"
+                       oninput="formatarCPF(this)" />
+                <span asp-validation-for="CPF" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="DataNascimento" class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
+                <input asp-for="DataNascimento" 
+                       type="date" 
+                       class="form-control" 
+                       max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="DataNascimento" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Genero" class="form-label">Sexo <span class="text-danger">*</span></label>
+                <select asp-for="Genero" class="form-select">
+                    <option value="1">Masculino</option>
+                    <option value="2">Feminino</option>
+                    <option value="99">Outro</option>
+                </select>
+                <span asp-validation-for="Genero" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Residencia.Id" class="form-label">Cidade <span class="text-danger">*</span></label>
+                <select asp-for="Residencia.Id" asp-items="cidades" class="form-select">
+                    <option value="">Selecione uma cidade</option>
+                </select>
+                <span asp-validation-for="Residencia.Id" class="text-danger small"></span>
+                <small class="text-muted">
+                    Não encontrou a cidade? <a asp-controller="AdministracaoCidade" asp-action="Index">Gerenciar cidades</a>
+                </small>
+            </div>
+
+            <div class="col-12 d-flex justify-content-between mt-4">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const cpfInput = document.getElementById("cpfInput");
+        function formatarCPF(input) {
+            let valor = input.value.replace(/\D/g, '');
             
-            if (cpfInput) {
-                // Bloqueia a digitação de caracteres que não são números
-                cpfInput.addEventListener("keypress", function(e) {
-                    const char = String.fromCharCode(e.which || e.keyCode);
-                    // Permite apenas números (0-9) e teclas de controle (backspace, delete, tab, etc)
-                    if (!/[0-9]/.test(char) && !e.ctrlKey && !e.metaKey && e.keyCode !== 8 && e.keyCode !== 9 && e.keyCode !== 46 && e.keyCode !== 37 && e.keyCode !== 39) {
-                        e.preventDefault();
-                        return false;
-                    }
-                });
-                
-                cpfInput.addEventListener("input", function(e) {
-                    // Remove tudo que não é número
-                    let value = e.target.value.replace(/\D/g, "");
-                    
-                    // Limita a 11 dígitos
-                    if (value.length > 11) {
-                        value = value.substring(0, 11);
-                    }
-                    
-                    // Aplica a máscara: 000.000.000-00
-                    if (value.length > 0) {
-                        if (value.length <= 3) {
-                            value = value;
-                        } else if (value.length <= 6) {
-                            value = value.substring(0, 3) + "." + value.substring(3);
-                        } else if (value.length <= 9) {
-                            value = value.substring(0, 3) + "." + value.substring(3, 6) + "." + value.substring(6);
-                        } else {
-                            value = value.substring(0, 3) + "." + value.substring(3, 6) + "." + value.substring(6, 9) + "-" + value.substring(9, 11);
-                        }
-                    }
-                    
-                    e.target.value = value;
-                });
-                
-                // Permite apenas números ao colar
-                cpfInput.addEventListener("paste", function(e) {
-                    e.preventDefault();
-                    const paste = (e.clipboardData || window.clipboardData).getData("text");
-                    const numbers = paste.replace(/\D/g, "");
-                    if (numbers.length <= 11) {
-                        cpfInput.value = numbers;
-                        cpfInput.dispatchEvent(new Event("input"));
-                    }
-                });
+            if (valor.length <= 11) {
+                valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+                valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+                valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            }
+            
+            input.value = valor;
+        }
+
+        // Validação básica do formulário
+        document.getElementById('formAluno').addEventListener('submit', function(e) {
+            const matricula = document.querySelector('[name="Matricula"]').value;
+            const nome = document.querySelector('[name="NomeCompleto"]').value;
+            const cidade = document.querySelector('[name="Residencia.Id"]').value;
+
+            if (!matricula || !nome || !cidade) {
+                e.preventDefault();
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return false;
             }
         });
     </script>

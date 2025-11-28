@@ -1,79 +1,119 @@
 ﻿@model IEnumerable<Aluno>
 @{
-    ViewData["Title"] = "Tabela de Alunos";
-    var tipoBuscaAtual = (ViewBag.TipoBusca as string) ?? "matricula";
-    var termoBusca = ViewBag.TermoBusca as string ?? string.Empty;
+    ViewData["Title"] = "Lista de Alunos";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0 fw-bold">Tabela de Alunos</h1>
-    <a class="btn btn-blue" asp-controller="Home" asp-action="Relatorio">Emitir relatório</a>
+    <div>
+        <h1 class="h3 mb-1">Lista de Alunos</h1>
+        <p class="text-muted mb-0">Gerencie o cadastro de alunos do sistema</p>
+    </div>
+    <a asp-controller="AdministracaoAluno" asp-action="Cadastro" class="btn btn-primary">
+        + Novo Aluno
+    </a>
 </div>
 
-<section class="section-panel filter-panel mb-4">
-    <div class="card-body filter-panel__body">
-        <form method="get" class="row g-3">
-            <div class="col-md-12 mb-2">
-                <label class="form-label mb-2 fw-semibold">Opção de busca:</label>
-                <div class="d-flex gap-4">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tipoBusca" id="radioMatricula" value="matricula" @(tipoBuscaAtual == "matricula" ? "checked" : "")>
-                        <label class="form-check-label" for="radioMatricula">Matrícula</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tipoBusca" id="radioNome" value="nome" @(tipoBuscaAtual == "nome" ? "checked" : "")>
-                        <label class="form-check-label" for="radioNome">Nome</label>
-                    </div>
-                </div>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" action="@Url.Action("Index", "Home")" class="row g-3">
+            <div class="col-md-8">
+                <label for="busca" class="form-label">Buscar</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="busca" 
+                       name="busca" 
+                       value="@ViewBag.TermoBusca" 
+                       placeholder="Digite para buscar...">
             </div>
-            <div class="col-md-9">
-                <label class="form-label mb-1 fw-semibold" for="busca">Buscar</label>
-                <input type="text" class="form-control" id="busca" name="busca" value="@termoBusca" placeholder="Matrícula ou nome do aluno..." />
+            <div class="col-md-4">
+                <label for="tipoBusca" class="form-label">Tipo de busca</label>
+                <select class="form-select" id="tipoBusca" name="tipoBusca">
+                    <option value="matricula" selected="@(ViewBag.TipoBusca == "matricula")">Matrícula</option>
+                    <option value="nome" selected="@(ViewBag.TipoBusca == "nome")">Nome</option>
+                    <option value="cpf" selected="@(ViewBag.TipoBusca == "cpf")">CPF</option>
+                </select>
             </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-accent w-100">Buscar</button>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">Limpar</a>
+                <a href="@Url.Action("Relatorio", "Home")" class="btn btn-success">
+                    Gerar Relatório PDF
+                </a>
             </div>
         </form>
     </div>
-</section>
+</div>
 
-<div class="table-container-wrapper">
-<section class="section-panel table-panel mb-0">
-    <div class="card-body table-panel__content">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Matrícula</th>
-                        <th>Nome</th>
-                        <th>Sexo</th>
-                        <th>Data de nascimento</th>
-                        <th>CPF</th>
-                        <th class="text-end">Opções</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var aluno in Model)
-                    {
+@if (Model != null && Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <td>@aluno.Matricula</td>
-                            <td>@aluno.NomeCompleto</td>
-                            <td>@aluno.Genero</td>
-                            <td>@aluno.DataNascimento.ToString("dd/MM/yyyy")</td>
-                            <td>@(string.IsNullOrWhiteSpace(aluno.CPF) ? "-" : aluno.CPF)</td>
-                            <td class="text-end">
-                                <a class="btn-edit-small me-3" asp-controller="AdministracaoAluno" asp-action="Cadastro" asp-route-id="@aluno.Id">Editar</a>
-                                <form method="post" asp-controller="AdministracaoAluno" asp-action="Excluir" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@aluno.Id" />
-                                    <button type="submit" class="btn-link-delete" onclick="return confirm('Confirma a exclusão deste aluno?');">Excluir</button>
-                                </form>
-                            </td>
+                            <th>Matrícula</th>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Data Nascimento</th>
+                            <th>Sexo</th>
+                            <th>Cidade</th>
+                            <th>UF</th>
+                            <th class="text-end">Ações</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var aluno in Model)
+                        {
+                            <tr>
+                                <td>@aluno.Matricula</td>
+                                <td>@aluno.NomeCompleto</td>
+                                <td>@(aluno.CPF ?? "-")</td>
+                                <td>@aluno.DataNascimento.ToString("dd/MM/yyyy")</td>
+                                <td>@aluno.Genero</td>
+                                <td>@(aluno.Residencia?.Nome ?? "-")</td>
+                                <td>@(aluno.Residencia?.Estado ?? "-")</td>
+                                <td class="text-end">
+                                    <a asp-controller="AdministracaoAluno" 
+                                       asp-action="Cadastro" 
+                                       asp-route-id="@aluno.Id" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        Editar
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger" 
+                                            onclick="confirmarExclusao(@aluno.Id, '@aluno.NomeCompleto')">
+                                        Excluir
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</section>
-</div>
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        <h5 class="alert-heading">Nenhum aluno encontrado</h5>
+        <p class="mb-0">Não há alunos cadastrados no momento. Clique em "Novo Aluno" para começar.</p>
+    </div>
+}
+
+<form id="formExcluir" method="post" asp-controller="AdministracaoAluno" asp-action="Excluir" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="idExcluir" name="id" />
+</form>
+
+@section Scripts {
+    <script>
+        function confirmarExclusao(id, nome) {
+            if (confirm('Tem certeza que deseja excluir o aluno "' + nome + '"?')) {
+                document.getElementById('idExcluir').value = id;
+                document.getElementById('formExcluir').submit();
+            }
+        }
+    </script>
+}

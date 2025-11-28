@@ -14,35 +14,34 @@ public class AdministracaoCidadeController : Controller
         _repositorioCidade = repositorioCidade;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(int? id)
     {
         var cidades = _repositorioCidade.Listar();
-        return View(cidades);
-    }
-
-    public IActionResult CadastroCidade(int? id)
-    {
+        
+        Cidade cidadeModel;
         if (id.HasValue)
         {
-            var cidade = _repositorioCidade.Buscar(c => c.Id == id.Value).FirstOrDefault();
-            if (cidade == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.IsEdicao = true;
-            return View(cidade);
+            cidadeModel = _repositorioCidade.Buscar(c => c.Id == id.Value).FirstOrDefault() ?? new Cidade();
+            ViewBag.IsEdicao = cidadeModel.Id != 0;
+        }
+        else
+        {
+            cidadeModel = new Cidade();
+            ViewBag.IsEdicao = false;
         }
 
-        ViewBag.IsEdicao = false;
-        return View(new Cidade());
+        ViewBag.Cidades = cidades;
+        return View(cidadeModel);
     }
 
     [HttpPost]
-    public IActionResult CadastroCidade(Cidade cidade)
+    public IActionResult Index(Cidade cidade)
     {
         cidade.Nome = (cidade.Nome ?? string.Empty).Trim();
         cidade.Estado = (cidade.Estado ?? string.Empty).ToUpperInvariant().Trim();
+
+        var cidades = _repositorioCidade.Listar();
+        ViewBag.Cidades = cidades;
 
         if (!ModelState.IsValid)
         {

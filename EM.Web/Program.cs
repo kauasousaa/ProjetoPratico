@@ -25,11 +25,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "cadastroCidade",
-    pattern: "AdministracaoCidade/CadastroCidade/{id?}",
-    defaults: new { controller = "AdministracaoCidade", action = "CadastroCidade" });
-
-app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 

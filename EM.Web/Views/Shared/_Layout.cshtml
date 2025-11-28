@@ -1,38 +1,47 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] - Portal Escolar</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ProjetoPratico</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/palette.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ProjetoPratico.styles.css" asp-append-version="true" />
 </head>
-<body class="bg-soft">
-    <header class="page-header">
-        <div class="container-fluid">
-            <a class="navbar-brand text-uppercase fw-bold" asp-area="" asp-controller="Home" asp-action="Index">School Management</a>
-            <nav class="nav-menu">
-                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Tabela de Alunos</a>
-                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdministracaoAluno" ? "active" : "")" asp-controller="AdministracaoAluno" asp-action="Cadastro">Cadastrar Aluno</a>
-                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdministracaoCidade" ? "active" : "")" asp-controller="AdministracaoCidade" asp-action="Index">Gerenciar Cidades</a>
-            </nav>
-        </div>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ProjetoPratico</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Alunos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="AdministracaoCidade" asp-action="Index">Cidades</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </header>
-
-    <main class="container-fluid">
-        <div class="content-wrapper">
+    <div class="container">
+        <main role="main" class="pb-3">
             @RenderBody()
-        </div>
-    </main>
+        </main>
+    </div>
 
-    <footer class="footer">
-        <div class="container-fluid">
-            © @DateTime.Now.Year - Escolar Manager - All Rights Reserved
+    <footer class="border-top footer text-muted mt-5">
+        <div class="container py-3">
+            &copy; 2025 - Sistema de Gerenciamento de Alunos
         </div>
     </footer>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
