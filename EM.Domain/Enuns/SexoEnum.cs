@@ -3,8 +3,7 @@
 public enum SexoEnum
 {
     Masculino = 1,
-    Feminino = 2,
-    Outro = 99
+    Feminino = 2
 }
 
 

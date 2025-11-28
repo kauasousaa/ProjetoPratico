@@ -1,96 +1,158 @@
 using EM.Domain;
 using EM.Domain.Enuns;
-using System.Linq;
+using FirebirdSql.Data.FirebirdClient;
+using System;
 
 namespace EM.Repository;
 
 public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
 {
-    public RepositorioAluno()
+    public RepositorioAluno(string connectionString) : base(connectionString)
     {
-        if (!Registros.Any())
+    }
+
+    public IEnumerable<Aluno> Listar()
+    {
+        var alunos = new List<Aluno>();
+        
+        try
         {
-            Registros.AddRange(new[]
+            using var conexao = CriarConexao();
+            conexao.Open();
+            
+            var sql = @"SELECT 
+                            a.ALUMATRICULA,
+                            a.ALUNOME,
+                            a.ALUCPF,
+                            a.ALUNASCIMENTO,
+                            a.ALUSEXO,
+                            a.ALUCODCIDADE,
+                            c.CIDNOME,
+                            c.CIDUF
+                        FROM TBALUNO a
+                        LEFT JOIN TBCIDADE c ON a.ALUCODCIDADE = c.CIDCODIGO
+                        ORDER BY a.ALUMATRICULA";
+            
+            using var cmd = new FbCommand(sql, conexao);
+            using var reader = cmd.ExecuteReader();
+            
+            while (reader.Read())
             {
-                new Aluno
+                alunos.Add(new Aluno
                 {
-                    Id = ObterProximoId(),
-                    Matricula = 5001,
-                    NomeCompleto = "Marina Lessa",
-                    CPF = "028.556.989-61",
-                    DataNascimento = new(2005, 2, 14),
-                    Genero = SexoEnum.Feminino,
-                    Residencia = new Cidade { Id = 1, Nome = "Maré Alta", Estado = "RJ" }
-                },
-                new Aluno
-                {
-                    Id = ObterProximoId(),
-                    Matricula = 5203,
-                    NomeCompleto = "Mateus Oliveira",
-                    CPF = "198.662.980-40",
-                    DataNascimento = new(2003, 8, 2),
-                    Genero = SexoEnum.Masculino,
-                    Residencia = new Cidade { Id = 2, Nome = "Vale Sol", Estado = "MG" }
-                },
-                new Aluno
-                {
-                    Id = ObterProximoId(),
-                    Matricula = 5347,
-                    NomeCompleto = "Luna Prado",
-                    CPF = "444.513.220-11",
-                    DataNascimento = new(2004, 11, 19),
-                    Genero = SexoEnum.Feminino,
-                    Residencia = new Cidade { Id = 3, Nome = "Novo Horizonte", Estado = "SP" }
-                }
-            });
+                    Id = reader.GetInt32(reader.GetOrdinal("ALUMATRICULA")),
+                    Matricula = reader.GetInt32(reader.GetOrdinal("ALUMATRICULA")),
+                    NomeCompleto = reader.GetString(reader.GetOrdinal("ALUNOME")),
+                    CPF = reader.IsDBNull(reader.GetOrdinal("ALUCPF")) ? null : reader.GetString(reader.GetOrdinal("ALUCPF")),
+                    DataNascimento = reader.GetDateTime(reader.GetOrdinal("ALUNASCIMENTO")),
+                    Genero = ConverterSexo(reader.GetInt32(reader.GetOrdinal("ALUSEXO"))),
+                    Residencia = new Cidade
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("ALUCODCIDADE")),
+                        Nome = reader.IsDBNull(reader.GetOrdinal("CIDNOME")) ? "" : reader.GetString(reader.GetOrdinal("CIDNOME")),
+                        Estado = reader.IsDBNull(reader.GetOrdinal("CIDUF")) ? "" : reader.GetString(reader.GetOrdinal("CIDUF"))
+                    }
+                });
+            }
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao listar alunos: {ex.Message}");
+            return new List<Aluno>();
+        }
+        
+        return alunos;
+    }
+
+    public IEnumerable<Aluno> Buscar(Func<Aluno, bool> criterio)
+    {
+        return Listar().Where(criterio);
     }
 
     public void Inserir(Aluno entidade)
     {
-        entidade.Id = ObterProximoId();
-        Registros.Add(CloneAluno(entidade));
+        try
+        {
+            using var conexao = CriarConexao();
+            conexao.Open();
+            
+            var sql = @"INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO, ALUCODCIDADE)
+                        VALUES (@Matricula, @Nome, @CPF, @DataNascimento, @Sexo, @CodCidade)";
+            
+            using var cmd = new FbCommand(sql, conexao);
+            cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
+            cmd.Parameters.Add("@Nome", FbDbType.VarChar, 100).Value = entidade.NomeCompleto;
+            cmd.Parameters.Add("@CPF", FbDbType.VarChar, 14).Value = (object?)entidade.CPF ?? DBNull.Value;
+            cmd.Parameters.Add("@DataNascimento", FbDbType.Date).Value = entidade.DataNascimento;
+            cmd.Parameters.Add("@Sexo", FbDbType.Integer).Value = ConverterSexoParaInt(entidade.Genero);
+            cmd.Parameters.Add("@CodCidade", FbDbType.Integer).Value = entidade.Residencia?.Id ?? 0;
+            
+            cmd.ExecuteNonQuery();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ERRO ao inserir aluno: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            throw; // Relança a exceção para que o controller possa tratá-la
+        }
     }
 
     public void Atualizar(Aluno entidade)
     {
-        var cursor = Registros.FirstOrDefault(a => a.Id == entidade.Id);
-        if (cursor == null)
-        {
-            return;
-        }
-
-        cursor.Matricula = entidade.Matricula;
-        cursor.NomeCompleto = entidade.NomeCompleto;
-        cursor.CPF = entidade.CPF;
-        cursor.DataNascimento = entidade.DataNascimento;
-        cursor.Genero = entidade.Genero;
-        cursor.Residencia = CloneCidade(entidade.Residencia);
+        using var conexao = CriarConexao();
+        conexao.Open();
+        
+        var sql = @"UPDATE TBALUNO 
+                    SET ALUMATRICULA = @Matricula,
+                        ALUNOME = @Nome,
+                        ALUCPF = @CPF,
+                        ALUNASCIMENTO = @DataNascimento,
+                        ALUSEXO = @Sexo,
+                        ALUCODCIDADE = @CodCidade
+                    WHERE ALUMATRICULA = @Matricula";
+        
+        using var cmd = new FbCommand(sql, conexao);
+        cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
+        cmd.Parameters.Add("@Nome", FbDbType.VarChar, 100).Value = entidade.NomeCompleto;
+        cmd.Parameters.Add("@CPF", FbDbType.VarChar, 14).Value = (object?)entidade.CPF ?? DBNull.Value;
+        cmd.Parameters.Add("@DataNascimento", FbDbType.Date).Value = entidade.DataNascimento;
+        cmd.Parameters.Add("@Sexo", FbDbType.Integer).Value = ConverterSexoParaInt(entidade.Genero);
+        cmd.Parameters.Add("@CodCidade", FbDbType.Integer).Value = entidade.Residencia.Id;
+        
+        cmd.ExecuteNonQuery();
     }
 
     public void Apagar(Aluno entidade)
     {
-        Registros.RemoveAll(a => a.Id == entidade.Id);
+        using var conexao = CriarConexao();
+        conexao.Open();
+        
+        var sql = "DELETE FROM TBALUNO WHERE ALUMATRICULA = @Matricula";
+        
+        using var cmd = new FbCommand(sql, conexao);
+        cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
+        
+        cmd.ExecuteNonQuery();
     }
 
-    private static Aluno CloneAluno(Aluno origem) =>
-        new()
+    private static SexoEnum ConverterSexo(int valor)
+    {
+        return valor switch
         {
-            Id = origem.Id,
-            Matricula = origem.Matricula,
-            NomeCompleto = origem.NomeCompleto,
-            CPF = origem.CPF,
-            DataNascimento = origem.DataNascimento,
-            Genero = origem.Genero,
-            Residencia = CloneCidade(origem.Residencia)
+            0 => SexoEnum.Masculino,  // Banco usa 0 para Masculino
+            1 => SexoEnum.Feminino,   // Banco usa 1 para Feminino
+            _ => SexoEnum.Masculino   // Padrão: Masculino
         };
+    }
 
-    private static Cidade CloneCidade(Cidade origem) =>
-        new()
+    private static int ConverterSexoParaInt(SexoEnum sexo)
+    {
+        return sexo switch
         {
-            Id = origem.Id,
-            Nome = origem.Nome,
-            Estado = origem.Estado
+            SexoEnum.Masculino => 0,  // Banco espera 0 para Masculino
+            SexoEnum.Feminino => 1,   // Banco espera 1 para Feminino
+            _ => 0                    // Padrão: 0 (Masculino)
         };
+    }
 }
 

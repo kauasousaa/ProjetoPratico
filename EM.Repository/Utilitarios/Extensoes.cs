@@ -9,7 +9,7 @@ public static class Extensoes
         {
             SexoEnum.Masculino => "Masculino",
             SexoEnum.Feminino => "Feminino",
-            _ => "Outro"
+            _ => "Masculino" // Padrão
         };
 
     public static string DataFormatada(this DateTime data) =>

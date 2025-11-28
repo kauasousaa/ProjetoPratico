@@ -12,11 +12,11 @@
             <p class="text-muted mb-0">Preencha os dados do aluno abaixo</p>
         </div>
 
-        <form method="post" class="row g-3" id="formAluno">
+        <form method="post" class="row g-3" id="formAluno" novalidate>
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
 
             <div class="col-md-6">
                 <label asp-for="Matricula" class="form-label">Matrícula <span class="text-danger">*</span></label>
@@ -54,7 +54,6 @@
                 <select asp-for="Genero" class="form-select">
                     <option value="1">Masculino</option>
                     <option value="2">Feminino</option>
-                    <option value="99">Outro</option>
                 </select>
                 <span asp-validation-for="Genero" class="text-danger small"></span>
             </div>
@@ -92,16 +91,35 @@
             input.value = valor;
         }
 
-        // Validação básica do formulário
-        document.getElementById('formAluno').addEventListener('submit', function(e) {
-            const matricula = document.querySelector('[name="Matricula"]').value;
-            const nome = document.querySelector('[name="NomeCompleto"]').value;
-            const cidade = document.querySelector('[name="Residencia.Id"]').value;
-
-            if (!matricula || !nome || !cidade) {
-                e.preventDefault();
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return false;
+        // Desabilitar validação JavaScript - permitir apenas validação do servidor
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('formAluno');
+            
+            // Desabilita validação HTML5 nativa
+            if (form) {
+                form.noValidate = true;
+            }
+            
+            // Remove validação jQuery se existir
+            if (typeof $ !== 'undefined') {
+                $('#formAluno').removeData('validator');
+                $('#formAluno').removeData('unobtrusiveValidation');
+                $('#formAluno').off('submit.validate');
+            }
+            
+            // Sincronizar select com valor do modelo se estiver editando ou se houver erro de validação
+            var cidadeSelect = document.getElementById('Residencia_Id');
+            var cidadeId = @(Model?.Residencia?.Id ?? 0);
+            if (cidadeSelect && cidadeId > 0) {
+                cidadeSelect.value = cidadeId;
+                console.log('Cidade selecionada:', cidadeId);
+            }
+            
+            // Log quando o select mudar
+            if (cidadeSelect) {
+                cidadeSelect.addEventListener('change', function() {
+                    console.log('Cidade alterada para:', this.value);
+                });
             }
         });
     </script>
