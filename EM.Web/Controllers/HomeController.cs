@@ -22,9 +22,9 @@ public class HomeController : Controller
 
     public IActionResult Index(string? busca, string? tipoBusca)
     {
-        var termo = busca?.Trim() ?? string.Empty;
-        var filtro = string.IsNullOrWhiteSpace(tipoBusca) ? "matricula" : tipoBusca;
-        var alunos = _repositorioAluno
+        string termo = busca?.Trim() ?? string.Empty;
+        string filtro = string.IsNullOrWhiteSpace(tipoBusca) ? "matricula" : tipoBusca;
+        IEnumerable<Aluno> alunos = _repositorioAluno
             .Listar()
             .FiltrarPorTermo(termo, filtro)
             .OrdenarPorMatricula();
@@ -37,9 +37,9 @@ public class HomeController : Controller
 
     public IActionResult Relatorio()
     {
-        var alunos = _repositorioAluno.Listar().ToList();
+        List<Aluno> alunos = _repositorioAluno.Listar().ToList();
 
-        var document = Document.Create(container =>
+        QuestPDF.Fluent.Document document = Document.Create(container =>
         {
             container.Page(page =>
             {
@@ -77,9 +77,9 @@ public class HomeController : Controller
                         header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("CPF").SemiBold();
                     });
 
-                    foreach (var aluno in alunos)
+                    foreach (Aluno aluno in alunos)
                     {
-                        var cidade = aluno.Residencia ?? new Cidade();
+                        Cidade cidade = aluno.Residencia ?? new Cidade();
 
                         table.Cell().Padding(3).Text(aluno.Matricula.ToString());
                         table.Cell().Padding(3).Text(aluno.NomeCompleto);
@@ -97,7 +97,7 @@ public class HomeController : Controller
             });
         });
 
-        var stream = new MemoryStream();
+        MemoryStream stream = new MemoryStream();
         document.GeneratePdf(stream);
         stream.Position = 0;
         return File(stream, "application/pdf", "alunos-relatorio.pdf");

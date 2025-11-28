@@ -2,18 +2,18 @@ using EM.Domain;
 using EM.Repository;
 using QuestPDF.Infrastructure;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 QuestPDF.Settings.License = LicenseType.Community;
 
-var connectionString = builder.Configuration.GetConnectionString("FirebirdConnection") 
+string connectionString = builder.Configuration.GetConnectionString("FirebirdConnection") 
     ?? throw new InvalidOperationException("Connection string 'FirebirdConnection' não encontrada.");
 
 builder.Services.AddScoped<IRepositorioCidade<Cidade>>(_ => new RepositorioCidade(connectionString));
 builder.Services.AddScoped<IRepositorioAluno<Aluno>>(_ => new RepositorioAluno(connectionString));
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {

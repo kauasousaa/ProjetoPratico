@@ -17,13 +17,13 @@ public class CpfValidoAttribute : ValidationAttribute
             return ValidationResult.Success;
         }
 
-        var texto = value.ToString();
+        string? texto = value.ToString();
         if (string.IsNullOrWhiteSpace(texto))
         {
             return ValidationResult.Success;
         }
 
-        var apenasDigitos = new string(texto.Where(char.IsDigit).ToArray());
+        string apenasDigitos = new string(texto.Where(char.IsDigit).ToArray());
         if (apenasDigitos.Length != 11 || DigitosRepetidos(apenasDigitos))
         {
             return new ValidationResult(ErrorMessage);
@@ -38,16 +38,16 @@ public class CpfValidoAttribute : ValidationAttribute
 
     private static bool VerificarDigitos(string cpf)
     {
-        for (var posicao = 9; posicao <= 10; posicao++)
+        for (int posicao = 9; posicao <= 10; posicao++)
         {
-            var soma = 0;
-            for (var indice = 0; indice < posicao; indice++)
+            int soma = 0;
+            for (int indice = 0; indice < posicao; indice++)
             {
                 soma += (cpf[indice] - '0') * (posicao + 1 - indice);
             }
 
-            var resto = soma % 11;
-            var digitoEsperado = resto < 2 ? 0 : 11 - resto;
+            int resto = soma % 11;
+            int digitoEsperado = resto < 2 ? 0 : 11 - resto;
             if (digitoEsperado != cpf[posicao] - '0')
             {
                 return false;

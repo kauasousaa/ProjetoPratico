@@ -16,7 +16,7 @@ public class AdministracaoCidadeController : Controller
 
     public IActionResult Index(int? id)
     {
-        var cidades = _repositorioCidade.Listar();
+        IEnumerable<Cidade> cidades = _repositorioCidade.Listar();
         
         Cidade cidadeModel;
         if (id.HasValue)
@@ -40,7 +40,7 @@ public class AdministracaoCidadeController : Controller
         cidade.Nome = (cidade.Nome ?? string.Empty).Trim();
         cidade.Estado = (cidade.Estado ?? string.Empty).ToUpperInvariant().Trim();
 
-        var cidades = _repositorioCidade.Listar();
+        IEnumerable<Cidade> cidades = _repositorioCidade.Listar();
         ViewBag.Cidades = cidades;
 
         if (!ModelState.IsValid)

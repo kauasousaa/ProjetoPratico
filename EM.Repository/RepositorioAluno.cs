@@ -13,14 +13,14 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
 
     public IEnumerable<Aluno> Listar()
     {
-        var alunos = new List<Aluno>();
+        List<Aluno> alunos = new List<Aluno>();
 
         try
         {
-            using var conexao = CriarConexao();
+            using FbConnection conexao = CriarConexao();
             conexao.Open();
 
-            var sql = @"SELECT 
+            string sql = @"SELECT 
                             a.ALUMATRICULA,
                             a.ALUNOME,
                             a.ALUCPF,
@@ -33,8 +33,8 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
                         LEFT JOIN TBCIDADE c ON a.ALUCODCIDADE = c.CIDCODIGO
                         ORDER BY a.ALUMATRICULA";
 
-            using var cmd = new FbCommand(sql, conexao);
-            using var reader = cmd.ExecuteReader();
+            using FbCommand cmd = new FbCommand(sql, conexao);
+            using FbDataReader reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
@@ -72,13 +72,13 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
     {
         try
         {
-            using var conexao = CriarConexao();
+            using FbConnection conexao = CriarConexao();
             conexao.Open();
 
-            var sql = @"INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO, ALUCODCIDADE)
+            string sql = @"INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO, ALUCODCIDADE)
                         VALUES (@Matricula, @Nome, @CPF, @DataNascimento, @Sexo, @CodCidade)";
 
-            using var cmd = new FbCommand(sql, conexao);
+            using FbCommand cmd = new FbCommand(sql, conexao);
             cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
             cmd.Parameters.Add("@Nome", FbDbType.VarChar, 100).Value = entidade.NomeCompleto;
             cmd.Parameters.Add("@CPF", FbDbType.VarChar, 14).Value = (object?)entidade.CPF ?? DBNull.Value;
@@ -96,10 +96,10 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
 
     public void Atualizar(Aluno entidade)
     {
-        using var conexao = CriarConexao();
+        using FbConnection conexao = CriarConexao();
         conexao.Open();
 
-        var sql = @"UPDATE TBALUNO 
+        string sql = @"UPDATE TBALUNO 
                     SET ALUMATRICULA = @Matricula,
                         ALUNOME = @Nome,
                         ALUCPF = @CPF,
@@ -108,7 +108,7 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
                         ALUCODCIDADE = @CodCidade
                     WHERE ALUMATRICULA = @Matricula";
 
-        using var cmd = new FbCommand(sql, conexao);
+        using FbCommand cmd = new FbCommand(sql, conexao);
         cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
         cmd.Parameters.Add("@Nome", FbDbType.VarChar, 100).Value = entidade.NomeCompleto;
         cmd.Parameters.Add("@CPF", FbDbType.VarChar, 14).Value = (object?)entidade.CPF ?? DBNull.Value;
@@ -121,12 +121,12 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
 
     public void Apagar(Aluno entidade)
     {
-        using var conexao = CriarConexao();
+        using FbConnection conexao = CriarConexao();
         conexao.Open();
 
-        var sql = "DELETE FROM TBALUNO WHERE ALUMATRICULA = @Matricula";
+        string sql = "DELETE FROM TBALUNO WHERE ALUMATRICULA = @Matricula";
 
-        using var cmd = new FbCommand(sql, conexao);
+        using FbCommand cmd = new FbCommand(sql, conexao);
         cmd.Parameters.Add("@Matricula", FbDbType.Integer).Value = entidade.Matricula;
 
         cmd.ExecuteNonQuery();

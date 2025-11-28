@@ -23,7 +23,7 @@ public class AdministracaoAlunoController : Controller
 
     private IEnumerable<SelectListItem> ObterCidadesSelecionadas()
     {
-        var cidades = _repositorioCidade.Listar().ToList();
+        List<Cidade> cidades = _repositorioCidade.Listar().ToList();
 
         return cidades.Select(c => new SelectListItem
         {
@@ -38,7 +38,7 @@ public class AdministracaoAlunoController : Controller
 
         if (id.HasValue)
         {
-            var existente = _repositorioAluno.Buscar(a => a.Id == id.Value).FirstOrDefault();
+            Aluno? existente = _repositorioAluno.Buscar(a => a.Id == id.Value).FirstOrDefault();
             if (existente == null)
             {
                 return NotFound();
@@ -79,7 +79,7 @@ public class AdministracaoAlunoController : Controller
 
         if (Request.Form.ContainsKey("Residencia.Id"))
         {
-            var valorForm = Request.Form["Residencia.Id"].FirstOrDefault();
+            string? valorForm = Request.Form["Residencia.Id"].FirstOrDefault();
             campoCidadeFoiEnviado = true;
 
             if (valorForm != null)
@@ -103,11 +103,11 @@ public class AdministracaoAlunoController : Controller
 
         if (!campoCidadeFoiEnviado)
         {
-            foreach (var key in Request.Form.Keys)
+            foreach (string key in Request.Form.Keys)
             {
                 if (key.Contains("Residencia", StringComparison.OrdinalIgnoreCase))
                 {
-                    var valor = Request.Form[key].FirstOrDefault();
+                    string? valor = Request.Form[key].FirstOrDefault();
                     campoCidadeFoiEnviado = true;
 
                     if (valor != null && int.TryParse(valor, out int parsedId))
@@ -126,7 +126,7 @@ public class AdministracaoAlunoController : Controller
         }
         else
         {
-            var cidadeSelecionada = _repositorioCidade.Listar().FirstOrDefault(c => c.Id == cidadeId.Value);
+            Cidade? cidadeSelecionada = _repositorioCidade.Listar().FirstOrDefault(c => c.Id == cidadeId.Value);
 
             if (cidadeSelecionada == null)
             {
@@ -185,7 +185,7 @@ public class AdministracaoAlunoController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Excluir(int id)
     {
-        var aluno = _repositorioAluno.Buscar(a => a.Id == id).FirstOrDefault();
+        Aluno? aluno = _repositorioAluno.Buscar(a => a.Id == id).FirstOrDefault();
         if (aluno != null)
         {
             _repositorioAluno.Apagar(aluno);

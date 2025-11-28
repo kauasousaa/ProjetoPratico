@@ -12,17 +12,17 @@ public class RepositorioCidade : RepositorioBase<Cidade>, IRepositorioCidade<Cid
 
     public IEnumerable<Cidade> Listar()
     {
-        var cidades = new List<Cidade>();
+        List<Cidade> cidades = new List<Cidade>();
 
         try
         {
-            using var conexao = CriarConexao();
+            using FbConnection conexao = CriarConexao();
             conexao.Open();
 
-            var sql = "SELECT CIDCODIGO, CIDNOME, CIDUF FROM TBCIDADE ORDER BY CIDCODIGO";
+            string sql = "SELECT CIDCODIGO, CIDNOME, CIDUF FROM TBCIDADE ORDER BY CIDCODIGO";
 
-            using var cmd = new FbCommand(sql, conexao);
-            using var reader = cmd.ExecuteReader();
+            using FbCommand cmd = new FbCommand(sql, conexao);
+            using FbDataReader reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
@@ -48,21 +48,21 @@ public class RepositorioCidade : RepositorioBase<Cidade>, IRepositorioCidade<Cid
 
     public void Inserir(Cidade entidade)
     {
-        using var conexao = CriarConexao();
+        using FbConnection conexao = CriarConexao();
         conexao.Open();
 
         if (entidade.Id == 0)
         {
-            var sqlMaxId = "SELECT COALESCE(MAX(CIDCODIGO), 0) + 1 AS PROXIMO_ID FROM TBCIDADE";
-            using var cmdMaxId = new FbCommand(sqlMaxId, conexao);
-            var proximoId = cmdMaxId.ExecuteScalar();
+            string sqlMaxId = "SELECT COALESCE(MAX(CIDCODIGO), 0) + 1 AS PROXIMO_ID FROM TBCIDADE";
+            using FbCommand cmdMaxId = new FbCommand(sqlMaxId, conexao);
+            object? proximoId = cmdMaxId.ExecuteScalar();
             entidade.Id = Convert.ToInt32(proximoId);
         }
 
-        var sql = @"INSERT INTO TBCIDADE (CIDCODIGO, CIDNOME, CIDUF)
+        string sql = @"INSERT INTO TBCIDADE (CIDCODIGO, CIDNOME, CIDUF)
                     VALUES (@Codigo, @Nome, @UF)";
 
-        using var cmd = new FbCommand(sql, conexao);
+        using FbCommand cmd = new FbCommand(sql, conexao);
         cmd.Parameters.Add("@Codigo", FbDbType.Integer).Value = entidade.Id;
         cmd.Parameters.Add("@Nome", FbDbType.VarChar, 100).Value = entidade.Nome;
         cmd.Parameters.Add("@UF", FbDbType.Char, 2).Value = entidade.Estado;
@@ -72,15 +72,15 @@ public class RepositorioCidade : RepositorioBase<Cidade>, IRepositorioCidade<Cid
 
     public void Atualizar(Cidade entidade)
     {
-        using var conexao = CriarConexao();
+        using FbConnection conexao = CriarConexao();
         conexao.Open();
 
-        var sql = @"UPDATE TBCIDADE 
+        string sql = @"UPDATE TBCIDADE 
                     SET CIDNOME = @Nome,
                         CIDUF = @UF
                     WHERE CIDCODIGO = @Codigo";
 
-        using var cmd = new FbCommand(sql, conexao);
+        using FbCommand cmd = new FbCommand(sql, conexao);
         cmd.Parameters.Add("@Codigo", FbDbType.Integer).Value = entidade.Id;
         cmd.Parameters.Add("@Nome", FbDbType.VarChar, 100).Value = entidade.Nome;
         cmd.Parameters.Add("@UF", FbDbType.Char, 2).Value = entidade.Estado;
