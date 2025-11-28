@@ -9,8 +9,8 @@ QuestPDF.Settings.License = LicenseType.Community;
 var connectionString = builder.Configuration.GetConnectionString("FirebirdConnection") 
     ?? throw new InvalidOperationException("Connection string 'FirebirdConnection' não encontrada.");
 
-builder.Services.AddScoped<IRepositorioCidade<Cidade>>(sp => new RepositorioCidade(connectionString));
-builder.Services.AddScoped<IRepositorioAluno<Aluno>>(sp => new RepositorioAluno(connectionString));
+builder.Services.AddScoped<IRepositorioCidade<Cidade>>(_ => new RepositorioCidade(connectionString));
+builder.Services.AddScoped<IRepositorioAluno<Aluno>>(_ => new RepositorioAluno(connectionString));
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

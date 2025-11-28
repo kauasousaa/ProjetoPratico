@@ -55,7 +55,7 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
                 });
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return new List<Aluno>();
         }
@@ -88,7 +88,7 @@ public class RepositorioAluno : RepositorioBase<Aluno>, IRepositorioAluno<Aluno>
 
             cmd.ExecuteNonQuery();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }

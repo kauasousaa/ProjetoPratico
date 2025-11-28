@@ -34,7 +34,7 @@ public class RepositorioCidade : RepositorioBase<Cidade>, IRepositorioCidade<Cid
                 });
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
         }
 

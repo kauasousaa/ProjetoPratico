@@ -126,15 +126,12 @@ public class AdministracaoAlunoController : Controller
         }
         else
         {
-            int idParaBuscar = cidadeId.Value;
-
-            var todasCidades = _repositorioCidade.Listar().ToList();
-            var cidadeSelecionada = todasCidades.FirstOrDefault(c => c.Id == idParaBuscar);
+            var cidadeSelecionada = _repositorioCidade.Listar().FirstOrDefault(c => c.Id == cidadeId.Value);
 
             if (cidadeSelecionada == null)
             {
-                ModelState.AddModelError("Residencia.Id", $"Cidade com ID {idParaBuscar} não encontrada no banco de dados. Verifique se a cidade existe.");
-                aluno.Residencia = new Cidade { Id = idParaBuscar };
+                ModelState.AddModelError("Residencia.Id", $"Cidade com ID {cidadeId.Value} não encontrada no banco de dados. Verifique se a cidade existe.");
+                aluno.Residencia = new Cidade { Id = cidadeId.Value };
             }
             else
             {
